@@ -4,22 +4,119 @@ namespace TestProject1
     [TestClass]
     public class HashTableTests
     {
-        //[TestMethod]
-        // public void Add_AddsKeyValuePairToHashTable()
-        //{
-        //    // Arrange
-        //    var hashTable = new HashTable<int, string>();
+        [TestClass]
+        public class HashTableTests1
+        {
+            [TestMethod]
+            public void Add_AddSingleItem_ShouldIncreaseCount()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
 
-        //    // Act
-        //    hashTable.Add(1, "One");
-        //    hashTable.Add(2, "Two");
-        //    hashTable.Add(3, "Three");
+                // Act
+                hashTable.Add("key1", 1);
 
-        //    // Assert
-        //    Assert.AreEqual("One", hashTable.Find(1));
-        //    Assert.AreEqual("Two", hashTable.Find(2));
-        //    Assert.AreEqual("Three", hashTable.Find(3));
-        //}
+                // Assert
+                Assert.AreEqual(1, hashTable.GetCount());
+            }
+
+            [TestMethod]
+            public void Find_FindExistingItem_ShouldReturnCorrectValue()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
+                hashTable.Add("key1", 1);
+
+                // Act
+                var value = hashTable.Find("key1");
+
+                // Assert
+                Assert.AreEqual(1, value);
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(KeyNotFoundException))]
+            public void Find_FindNonExistingItem_ShouldThrowException()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
+
+                // Act
+                hashTable.Find("key1");
+
+                // Assert is handled by ExpectedException
+            }
+
+            [TestMethod]
+            public void Remove_RemoveExistingItem_ShouldDecreaseCount()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
+                hashTable.Add("key1", 1);
+
+                // Act
+                var result = hashTable.Remove("key1");
+
+                // Assert
+                Assert.IsTrue(result);
+                Assert.AreEqual(0, hashTable.GetCount());
+            }
+
+            [TestMethod]
+            public void Remove_RemoveNonExistingItem_ShouldReturnFalse()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
+
+                // Act
+                var result = hashTable.Remove("key1");
+
+                // Assert
+                Assert.IsFalse(result);
+            }
+
+            [TestMethod]
+            public void Add_AddMultipleItems_ShouldResizeAndRetainItems()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
+                for (int i = 0; i < 20; i++)
+                {
+                    hashTable.Add("key" + i, i);
+                }
+
+                // Act
+                var value = hashTable.Find("key15");
+
+                // Assert
+                Assert.AreEqual(20, hashTable.GetCount());
+                Assert.AreEqual(15, value);
+            }
+
+            [TestMethod]
+            public void Print_PrintItems_ShouldOutputItems()
+            {
+                // Arrange
+                var hashTable = new HashTable<string, int>();
+                hashTable.Add("key1", 1);
+                hashTable.Add("key2", 2);
+                hashTable.Add("key3", 3);
+
+                // Act
+                using (var sw = new System.IO.StringWriter())
+                {
+                    Console.SetOut(sw);
+                    hashTable.Print();
+                    var output = sw.ToString();
+
+                    // Assert
+                    Assert.IsTrue(output.Contains("Key: key1, Value: 1"));
+                    Assert.IsTrue(output.Contains("Key: key2, Value: 2"));
+                    Assert.IsTrue(output.Contains("Key: key3, Value: 3"));
+                    Assert.IsTrue(output.Contains("Количество элементов в списке: 3"));
+                }
+            }
+        }
 
         [TestMethod]
         public void Find_ReturnsCorrectValueForKey()
