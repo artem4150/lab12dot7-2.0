@@ -358,7 +358,7 @@ namespace laba12
                         {
                             int count = instrumentsTable.GetCount();
                             Random rand = new Random();
-                            // Добавление элемента в полностью заполненную таблицу
+                            // xДобавление элемента в полностью заполненную таблицу
                             Console.WriteLine("Попытка добавления элемента в полностью заполненную таблицу:");
                             try
                             {
