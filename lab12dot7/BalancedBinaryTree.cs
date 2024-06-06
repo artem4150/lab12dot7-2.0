@@ -1,13 +1,11 @@
 ﻿using System;
-using laba12;
-using System.ComponentModel.Design;
-using лаба10;
+using System.Collections.Generic;
 using lab12dot7;
-using System.Xml.Linq;
-namespace lab12dot7
-{
+using лаба10;
 
-    public class BalancedBinaryTree<T> where T : MusicalInstrument
+namespace Lab12dot7
+{
+    public class BalancedBinaryTree<T> where T : IComparable<T>
     {
         private class TreeNode
         {
@@ -18,6 +16,8 @@ namespace lab12dot7
             public TreeNode(T data)
             {
                 Data = data;
+                LeftChild = null;
+                RightChild = null;
             }
         }
 
@@ -25,9 +25,14 @@ namespace lab12dot7
 
         public BalancedBinaryTree(T[] elements)
         {
+            if (elements == null || elements.Length == 0)
+            {
+                throw new ArgumentException("Массив элементов не может быть пустым");
+            }
+            Array.Sort(elements); // Убедимся, что элементы отсортированы
             _root = ConstructBalancedTree(elements, 0, elements.Length - 1);
         }
-
+        
         private TreeNode ConstructBalancedTree(T[] elements, int start, int end)
         {
             if (start > end)
@@ -36,10 +41,11 @@ namespace lab12dot7
             }
 
             int mid = (start + end) / 2;
-            TreeNode node = new TreeNode(elements[mid]);
-
-            node.LeftChild = ConstructBalancedTree(elements, start, mid - 1);
-            node.RightChild = ConstructBalancedTree(elements, mid + 1, end);
+            TreeNode node = new TreeNode(elements[mid])
+            {
+                LeftChild = ConstructBalancedTree(elements, start, mid - 1),
+                RightChild = ConstructBalancedTree(elements, mid + 1, end)
+            };
 
             return node;
         }
@@ -62,7 +68,7 @@ namespace lab12dot7
                 for (int i = 0; i < levelSize; i++)
                 {
                     TreeNode currentNode = queue.Dequeue();
-                    Console.Write(currentNode.Data + " ");
+                    Console.Write("| "+currentNode.Data + "| ");
 
                     if (currentNode.LeftChild != null)
                     {
@@ -91,12 +97,11 @@ namespace lab12dot7
 
         private T FindMax(TreeNode node)
         {
-            if (node.RightChild == null)
+            while (node.RightChild != null)
             {
-                return node.Data;
+                node = node.RightChild;
             }
-
-            return FindMax(node.RightChild);
+            return node.Data;
         }
 
         public BalancedBinaryTree<T> Balance()
@@ -118,7 +123,8 @@ namespace lab12dot7
             elements.Add(node.Data);
             InOrderTraversal(node.RightChild, elements);
         }
-        public bool Remove(T item)
+
+        public bool Remove(T key)
         {
             if (_root == null)
             {
@@ -127,18 +133,21 @@ namespace lab12dot7
 
             TreeNode parent = null;
             TreeNode current = _root;
+            bool isLeftChild = false; // Флаг, указывающий, является ли текущий узел левым ребенком
 
             // Находим удаляемый узел и его родителя
-            while (current != null && !current.Data.Equals(item))
+            while (current != null && !current.Data.Equals(key))
             {
                 parent = current;
-                if (item.CompareTo(current.Data) < 0)
+                if (key.CompareTo(current.Data) < 0)
                 {
                     current = current.LeftChild;
+                    isLeftChild = true;
                 }
                 else
                 {
                     current = current.RightChild;
+                    isLeftChild = false;
                 }
             }
 
@@ -150,77 +159,65 @@ namespace lab12dot7
             // У удаляемого узла нет детей
             if (current.LeftChild == null && current.RightChild == null)
             {
-                if (current != _root)
+                if (current == _root)
                 {
-                    if (parent.LeftChild == current)
-                    {
-                        parent.LeftChild = null;
-                    }
-                    else
-                    {
-                        parent.RightChild = null;
-                    }
+                    _root = null; // Удаляем корневой узел, если он единственный
+                }
+                else if (isLeftChild)
+                {
+                    parent.LeftChild = null;
                 }
                 else
                 {
-                    _root = null;
+                    parent.RightChild = null;
                 }
             }
             // У удаляемого узла есть только один ребенок
             else if (current.RightChild == null)
             {
-                if (current != _root)
+                if (current == _root)
                 {
-                    if (parent.LeftChild == current)
-                    {
-                        parent.LeftChild = current.LeftChild;
-                    }
-                    else
-                    {
-                        parent.RightChild = current.LeftChild;
-                    }
+                    _root = current.LeftChild;
+                }
+                else if (isLeftChild)
+                {
+                    parent.LeftChild = current.LeftChild;
                 }
                 else
                 {
-                    _root = current.LeftChild;
+                    parent.RightChild = current.LeftChild;
                 }
             }
             else if (current.LeftChild == null)
             {
-                if (current != _root)
+                if (current == _root)
                 {
-                    if (parent.LeftChild == current)
-                    {
-                        parent.LeftChild = current.RightChild;
-                    }
-                    else
-                    {
-                        parent.RightChild = current.RightChild;
-                    }
+                    _root = current.RightChild;
+                }
+                else if (isLeftChild)
+                {
+                    parent.LeftChild = current.RightChild;
                 }
                 else
                 {
-                    _root = current.RightChild;
+                    parent.RightChild = current.RightChild;
                 }
             }
             // У удаляемого узла есть оба ребенка
             else
             {
                 TreeNode successor = GetSuccessor(current);
-                if (current != _root)
+                if (current == _root)
                 {
-                    if (parent.LeftChild == current)
-                    {
-                        parent.LeftChild = successor;
-                    }
-                    else
-                    {
-                        parent.RightChild = successor;
-                    }
+                    _root = successor;
+                }
+                else if (isLeftChild)
+                {
+                    parent.LeftChild = successor;
                 }
                 else
                 {
-                    _root = successor;
+                    parent.RightChild = successor;
                 }
                 successor.LeftChild = current.LeftChild;
             }
@@ -231,7 +228,7 @@ namespace lab12dot7
         // Вспомогательная функция для нахождения преемника узла
         private TreeNode GetSuccessor(TreeNode node)
         {
-            TreeNode parentOfSuccessor = null;
+            TreeNode parentOfSuccessor = node;
             TreeNode successor = node;
             TreeNode current = node.RightChild;
             while (current != null)
@@ -247,6 +244,51 @@ namespace lab12dot7
             }
             return successor;
         }
+        public void DeepClear()
+        {
+            DeepClear(_root);
+            _root = null; // Убедимся, что корневой узел установлен в null
+        }
+        
+        private void DeepClear(TreeNode node)
+        {
+            if (node == null)
+                return;
+
+            // Рекурсивно вызываем DeepClear для левого и правого поддеревьев
+            DeepClear(node.LeftChild);
+            DeepClear(node.RightChild);
+
+            // Освобождаем память, занятую текущим узлом
+            node.LeftChild = null;
+            node.RightChild = null;
+        }
+        public BalancedBinaryTree<T> TransformToSearchTree()
+        {
+            List<T> elements = new List<T>();
+            InOrderTraversal(_root, elements);
+            elements.Sort(); // Сортируем элементы по алфавиту
+
+            _root = ConstructBalancedTree(elements.ToArray(), 0, elements.Count - 1); // Обновляем корневой узел
+
+            return this; // Возвращаем измененное дерево
+        }
+        private TreeNode ConstructSearchTree(T[] elements, int start, int end)
+        {
+            if (start > end)
+            {
+                return null;
+            }
+
+            int mid = (start + end) / 2;
+            TreeNode node = new TreeNode(elements[mid]);
+
+            node.LeftChild = ConstructSearchTree(elements, start, mid - 1);
+            node.RightChild = ConstructSearchTree(elements, mid + 1, end);
+
+            return node;
+        }
+        
+
     }
 }
-

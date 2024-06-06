@@ -17,15 +17,14 @@ namespace лаба10
 
         public string PowerSupply
         {
-            get => PowerSupply1;
+            get { return PowerSupply1; }
             set
             {
                 if (HasCharacters1)
                 {
-                    Console.WriteLine("");
-                    PowerSupply1 = "";
+                    throw new Exception("пустая строка");
                 }
-                else PowerSupply1 = value;
+                PowerSupply1 = value;
             }
         }
 

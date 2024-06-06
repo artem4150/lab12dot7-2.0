@@ -12,30 +12,29 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace лаба10
 {
-    public class MusicalInstrument : IInit, IComparable, ICloneable, IStr
+    public class MusicalInstrument : IInit, IComparable<MusicalInstrument>, ICloneable, IStr
     {
         Random rnd = new Random();
         
-        private string name;
+        protected string name;
         public IdNumber num;
         //public int Num = Convert.ToInt32(num.ToString());
         static string[] Names = { "ROCKDALE STARS BLACK", "IBANEZ GRX70QA-TRB", "YAMAHA F310", "YAMAHA C40", "ROLAND FP-30X-BK" };
-        public string Name1
+        public string Name
         {
-            get => name;
+            get { return name; }
             set
             {
 
                 
-                if (HasCharacters)
+                if (value == null)
                 {
-                    Console.WriteLine("/");
-                    name = "";
+                    throw new Exception("пустая строка");
                 }
-                else name = value;
+                name = value;
             }
         }
-        public string Name { get => name;set { name = value; } }
+        public string Name1 { get => name;set { name = value; } }
         public bool HasCharacters
         {
             get { return !string.IsNullOrEmpty(name); }
@@ -154,8 +153,13 @@ namespace лаба10
                 instrument.Show();
             }
         }
+        public int CompareTo(MusicalInstrument other)
+        {
+            if (other == null) return 1;
+            return this.Name.CompareTo(other.Name);
+        }
 
-        
+
 
     }
 }

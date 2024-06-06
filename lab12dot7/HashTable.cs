@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using лаба10;
 
 namespace lab12dot7
 {
@@ -31,15 +27,37 @@ namespace lab12dot7
             _count = 0;
         }
 
-        private int GetIndex(TKey key, int length)
+        private int GetPrimaryIndex(TKey key, int length)
         {
             int hash = key.GetHashCode();
             return Math.Abs(hash % length);
         }
 
-        private int GetIndex(TKey key)
+        private int GetSecondaryIndex(TKey key, int length)
         {
-            return GetIndex(key, _items.Length);
+            int hash = key.GetHashCode();
+            return Math.Abs((hash / length) % length) | 1; // гарантируем, что шаг не равен 0
+        }
+
+        private int GetPrimaryIndex(TKey key)
+        {
+            return GetPrimaryIndex(key, _items.Length);
+        }
+
+        private int GetSecondaryIndex(TKey key)
+        {
+            return GetSecondaryIndex(key, _items.Length);
+        }
+
+        private int GetInsertIndex(TKey key)
+        {
+            int index = GetPrimaryIndex(key);
+            int step = GetSecondaryIndex(key);
+            while (_items[index] != null && !_items[index].Key.Equals(key))
+            {
+                index = (index + step) % _items.Length;
+            }
+            return index;
         }
 
         public void Add(TKey key, TValue value)
@@ -49,19 +67,23 @@ namespace lab12dot7
                 Resize();
             }
 
-            int index = GetIndex(key);
-            while (_items[index] != null && !_items[index].Key.Equals(key))
-            {
-                index = (index + 1) % _items.Length;
-            }
+            int index = GetInsertIndex(key);
 
-            _items[index] = new MyKeyValuePair<TKey, TValue>(key, value);
-            _count++;
+            if (_items[index] == null)
+            {
+                _items[index] = new MyKeyValuePair<TKey, TValue>(key, value);
+                _count++;
+            }
+            else
+            {
+                _items[index].Value = value;
+            }
         }
 
         public TValue Find(TKey key)
         {
-            int index = GetIndex(key);
+            int index = GetPrimaryIndex(key);
+            int step = GetSecondaryIndex(key);
             int startIndex = index;
             while (_items[index] != null)
             {
@@ -69,7 +91,7 @@ namespace lab12dot7
                 {
                     return _items[index].Value;
                 }
-                index = (index + 1) % _items.Length;
+                index = (index + step) % _items.Length;
                 if (index == startIndex)
                 {
                     break;
@@ -80,8 +102,10 @@ namespace lab12dot7
 
         public bool Remove(TKey key)
         {
-            int index = GetIndex(key);
+            int index = GetPrimaryIndex(key);
+            int step = GetSecondaryIndex(key);
             int startIndex = index;
+
             while (_items[index] != null)
             {
                 if (_items[index].Key.Equals(key))
@@ -89,23 +113,19 @@ namespace lab12dot7
                     _items[index] = null;
                     _count--;
 
-                    int nextIndex = (index + 1) % _items.Length;
+                    int nextIndex = (index + step) % _items.Length;
                     while (_items[nextIndex] != null)
                     {
-                        if (GetIndex(_items[nextIndex].Key) == startIndex)
-                        {
-                            break;
-                        }
-
-                        _items[index] = _items[nextIndex];
+                        var tempItem = _items[nextIndex];
                         _items[nextIndex] = null;
+                        int newIndex = GetInsertIndex(tempItem.Key);
+                        _items[newIndex] = tempItem;
 
-                        index = nextIndex;
-                        nextIndex = (nextIndex + 1) % _items.Length;
+                        nextIndex = (nextIndex + step) % _items.Length;
                     }
                     return true;
                 }
-                index = (index + 1) % _items.Length;
+                index = (index + step) % _items.Length;
                 if (index == startIndex)
                 {
                     break;
@@ -122,10 +142,11 @@ namespace lab12dot7
             {
                 if (item != null)
                 {
-                    int index = GetIndex(item.Key, newSize);
+                    int index = GetPrimaryIndex(item.Key, newSize);
+                    int step = GetSecondaryIndex(item.Key, newSize);
                     while (newItems[index] != null)
                     {
-                        index = (index + 1) % newSize;
+                        index = (index + step) % newSize;
                     }
                     newItems[index] = item;
                 }
@@ -140,17 +161,23 @@ namespace lab12dot7
 
         public void Print()
         {
-            
-            foreach (var item in _items)
+            for (int i = 0; i < _items.Length; i++)
             {
+                var item = _items[i];
                 if (item != null)
                 {
-                    Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
+                    int calculatedIndex = GetPrimaryIndex(item.Key);
+                    Console.WriteLine($"Индекс: {i}, Ключ: {item.Key}, Значение: {item.Value}, Расчетный индекс: {calculatedIndex}");
                 }
             }
-            Console.WriteLine($"Количество элементов в списке: {_count}");
+            Console.WriteLine($"Количествои элементов {_count}, размер массива {_items.Length}");
         }
 
         
+        public void Clear()
+        {
+            _items = new MyKeyValuePair<TKey, TValue>?[DefaultCapacity];
+            _count = 0;
+        }
     }
 }

@@ -27,11 +27,11 @@ namespace лаба10
         {
             if (x is Piano && y is Piano)
             {
-                Piano pianoX = (Piano)x;
-                Piano pianoY = (Piano)y;
-                return pianoX.NumberOfKeys.CompareTo(pianoY.NumberOfKeys);
+                MusicalInstrument pianoX = (MusicalInstrument)x;
+                MusicalInstrument pianoY = (MusicalInstrument)y;
+                return pianoX.Name.CompareTo(pianoY.Name);
             }
-            
+
             return 0;
         }
     }

@@ -4,6 +4,8 @@ using System.ComponentModel.Design;
 using лаба10;
 using lab12dot7;
 using System.Xml.Linq;
+using Lab12dot7;
+
 namespace laba12
 {
     
@@ -16,10 +18,10 @@ namespace laba12
             Random rand = new Random();
             //MusicalInstrument[] instruments = new MusicalInstrument[10]; // Замените размер массива и инициализацию элементов в соответствии с вашими объектами
             
-            int arraySize = 10; // Размер массива
+            int arraySize = 20; // Размер массива
 
             MusicalInstrument[] instrumentsArray = new MusicalInstrument[arraySize];
-            HashTable<int, MusicalInstrument> instrumentsTable = new HashTable<int, MusicalInstrument>();
+            HashTable<MusicalInstrument, MusicalInstrument> instrumentsTable = new HashTable<MusicalInstrument, MusicalInstrument>();
 
 
             // Заполнение массива рандомными объектами MusicalInstrument
@@ -41,7 +43,7 @@ namespace laba12
                 // Инициализация объекта
                 instrumentsArray[i].RandomInit();
             }
-            BalancedBinaryTree<MusicalInstrument> tree = new BalancedBinaryTree<MusicalInstrument>(instrumentsArray);
+            BalancedBinaryTree<MusicalInstrument> tree = null;
 
             while (true)
             {
@@ -52,7 +54,7 @@ namespace laba12
                 Console.WriteLine("1 - Меню работы с двунаправленным списком");
                 Console.WriteLine("2 - хеш-таблица");
                 Console.WriteLine("3 - Меню работы с идеально сбалансированным деревом");
-                Console.WriteLine("3 - Меню работы с идеально сбалансированным деревом");
+                Console.WriteLine("4 - Меню работы с коллекцией");
                 Console.WriteLine("0 - Выйти из приложения");
 
                 int choiceMainMenu = InputInt(0, pointsMainMenu);
@@ -102,7 +104,7 @@ namespace laba12
             MusicalInstrument[] instrumentsArray = new MusicalInstrument[arraySize];
             for (int i = 0; i < arraySize; i++)
             {
-                switch (rand.Next(3)) // Выбор случайного инструмента
+                switch (2) // Выбор случайного инструмента
                 {
                     case 0:
                         instrumentsArray[i] = new Guitar();
@@ -111,7 +113,7 @@ namespace laba12
                         instrumentsArray[i] = new Piano();
                         break;
                     case 2:
-                        instrumentsArray[i] = new ElectricGuitar();
+                        instrumentsArray[i] = new MusicalInstrument();
                         break;
                 }
 
@@ -166,7 +168,7 @@ namespace laba12
 
         private static void TreeCaseMenu(ref BalancedBinaryTree<MusicalInstrument> tree)
         {
-            BalancedBinaryTree<MusicalInstrument> searchTree = tree.Balance();
+            BalancedBinaryTree<MusicalInstrument> searchTree = null;
             MusicalInstrument[] instrumentsArray = GenerateInstrumentsArray(10);
             while (true)
             {
@@ -179,7 +181,7 @@ namespace laba12
                 Console.WriteLine("4 - Преобразовать идеально сбалансированное дерево в дерево поиска");
                 Console.WriteLine("5 - Распечатать полученное дерево (полученное)");
                 Console.WriteLine("6 - Удалить из дерева поиска элемент с заданным ключом");
-                Console.WriteLine("7- Удалить дерево из памяти");
+                Console.WriteLine("7 - Удалить дерево из памяти");
                 Console.WriteLine("8 - Очистка истории");
                 Console.WriteLine("0 - Выход из меню");
 
@@ -196,60 +198,155 @@ namespace laba12
                     case 1:
                         {
                             // Создаем идеально сбалансированное бинарное дерево
-                            
                             tree = new BalancedBinaryTree<MusicalInstrument>(instrumentsArray);
+                            tree.Balance();
                         }
-                
                         break;
                     case 2:
                         {
+                            if (tree == null)
+                            {
+                                Console.WriteLine("дерево пустое.");
+                                break;
+                            }
                             Console.WriteLine("Исходное идеально сбалансированное бинарное дерево:");
-                            tree.PrintLevelOrder();
+                            tree?.PrintLevelOrder();
                             Console.WriteLine();
                         }
                         break;
                     case 3:
                         {
-                            // Выполняем обработку дерева (например, поиск максимального элемента)
-                            MusicalInstrument maxInstrument = tree.FindMax();
-                            Console.WriteLine("Максимальный элемент в дереве: " + maxInstrument);
-                            Console.WriteLine();
 
+                            // Выполняем обработку дерева (например, поиск максимального элемента)
+                            if (tree != null)
+                            {
+                                MusicalInstrument maxInstrument = tree.FindMax();
+                                Console.WriteLine("Максимальный элемент в дереве: " + maxInstrument);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Дерево пустое");
+                            }
+                            Console.WriteLine();
                         }
                         break;
                     case 4:
                         {
-                            //BalancedBinaryTree<MusicalInstrument> searchTree = tree.Balance();
+                            if (tree== null)
+                            {
+                                Console.WriteLine("дерево пустое.");
+                                break;
+                            }
+                            searchTree = tree.TransformToSearchTree();
+                            Console.WriteLine("дерево успешно преобразовано");
                         }
                         break;
                     case 5:
                         {
+                            if (searchTree == null)
+                            {
+                                Console.WriteLine("дерево пустое.");
+                                break;
+                            }
                             Console.WriteLine("Преобразованное дерево поиска:");
-                            searchTree.PrintLevelOrder();
+                            searchTree?.PrintLevelOrder();
                             Console.WriteLine();
                         }
                         break;
                     case 6:
                         {
-                            //searchTree.Remove(instrumentsArray[0]);
-                            //Console.WriteLine("Удален элемент с ключом: " + instrumentsArray[0].Name);
-                            //Console.WriteLine();
+                            if (searchTree == null)
+                            {
+                                Console.WriteLine("дерево пустое.");
+                                break;
+                            }
+                            //searchTree = tree?.Balance();
+                            // Удаление элемента из таблицы
+                            Console.WriteLine("Удаление элемента по ключу:");
+
+
+                            Console.WriteLine("1 - Электрогитара");
+                            Console.WriteLine("2 - Пианино");
+                            Console.WriteLine("3 - Гитара");
+                            Console.WriteLine("4 - Музыкальный инструмент");
+
+                            int z = InputInt(0, 4);
+                            switch (z)
+                            {
+                                case 1:
+                                    {
+                                        ElectricGuitar e = new ElectricGuitar();
+                                        e.Init();
+                                        bool removed = searchTree.Remove(e);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        Piano p = new Piano();
+                                        p.Init();
+                                        bool removed = searchTree.Remove(p);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        Guitar g = new Guitar();
+                                        g.Init();
+                                        bool removed = searchTree.Remove(g);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        MusicalInstrument m = new MusicalInstrument();
+                                        m.Init();
+                                        bool removed = searchTree.Remove(m);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                                    }
+                                    break;
+                            }
                             // Удаляем элемент с заданным ключом из дерева поиска (пример удаления первого элемента)
-                            if (searchTree.Remove(instrumentsArray[0]))
-                            {
-                                Console.WriteLine("Элемент с ключом " + instrumentsArray[0].Name + " удален из дерева.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Элемент с ключом " + instrumentsArray[0].Name + " не найден в дереве.");
-                            }
-                            Console.WriteLine();
+                            
                         }
                         break;
                     case 7:
                         {
-                            searchTree = null;
-                            Console.WriteLine("Дерево удалено из памяти");
+                            if (searchTree == null && tree == null)
+                            {
+                                Console.WriteLine("Оба деревa пустые.");
+                                break;
+                            }
+                            Console.WriteLine("1 - удалить дерево поиска");
+                            Console.WriteLine("2 - удалить идеально сбалансированное дерево");
+                            int i = InputInt(1,2);
+                            switch (i)
+                            {
+                                case 1:
+                                    {
+                                        if (searchTree == null)
+                                        {
+                                            Console.WriteLine("дерево пустое.");
+                                            break;
+                                        }
+                                        searchTree.DeepClear();
+                                        break;
+
+                                    }
+                                case 2:
+                                    {
+                                        if (tree == null)
+                                        {
+                                            Console.WriteLine("дерево пустое.");
+                                            break;
+                                        }
+                                        tree.DeepClear();
+                                        break;
+                                    }
+                            }
+
+                            
                         }
                         break;
                     case 8:
@@ -258,20 +355,15 @@ namespace laba12
                             Console.WriteLine("История была очищена");
                         }
                         break;
-                    case 0:
-                        {
-                            
-                        }
-                        break;
                 }
             }
         }
 
-        private static void HashTable(ref HashTable<int, MusicalInstrument> instrumentsTable)
+        private static void HashTable(ref HashTable<MusicalInstrument, MusicalInstrument> instrumentsTable)
         {
             while (true)
             {
-                int pointsCaseMenu = 7;
+                int pointsCaseMenu = 8;
 
                 Console.WriteLine("\nМеню работы с хеш-таблицей:");
                 Console.WriteLine("1 - Формирование таблицы");
@@ -281,6 +373,7 @@ namespace laba12
                 Console.WriteLine("5 - Показать, что будет при добавлении элемента в хеш-таблицу, если в таблице уже находится максимальное число элементов");
                 Console.WriteLine("6 - Очистка истории");
                 Console.WriteLine("7 - Добавить вручную");
+                Console.WriteLine("8 - Удалить таблицу");
                 Console.WriteLine("0 - Выход из меню");
 
                 int choiceCaseMenu = InputInt(0, pointsCaseMenu);
@@ -295,11 +388,12 @@ namespace laba12
                 {
                     case 1:
                         {
+                            instrumentsTable.Clear();
                             // Заполнение таблицы
                             for (int i = 0; i < 10; i++)
                             {
                                 MusicalInstrument instrument = GenerateRandomInstrument();
-                                instrumentsTable.Add(instrument.GetHashCode(), instrument);
+                                instrumentsTable.Add(instrument, instrument);
                             }
                         }
                         break;
@@ -315,10 +409,52 @@ namespace laba12
                             try
                             {
                                 Console.WriteLine("Поиск элемента по ключу:");
-                                int key = Functions.Input();
-                                MusicalInstrument foundInstrument = instrumentsTable.Find(key);
-                                Console.WriteLine($"Найденный инструмент: {foundInstrument}");
+
+                                Console.WriteLine("1 - Электрогитара");
+                                Console.WriteLine("2 - Пианино");
+                                Console.WriteLine("3 - Гитара");
+                                Console.WriteLine("4 - Музыкальный инструмент");
+
+                                int z = InputInt(0, 4);
+                                switch (z)
+                                {
+                                    case 1:
+                                        {
+                                            ElectricGuitar e = new ElectricGuitar();
+                                            e.Init();
+                                            MusicalInstrument foundInstrument = instrumentsTable.Find(e);
+                                            Console.WriteLine($"Найденный инструмент: {foundInstrument}");
+                                        }
+                                        break;
+                                    case 2:
+                                        {
+                                            Piano p = new Piano();
+                                            p.Init();
+                                            MusicalInstrument foundInstrument = instrumentsTable.Find(p);
+                                            Console.WriteLine($"Найденный инструмент: {foundInstrument}");
+                                        }
+                                        break;
+                                    case 3:
+                                        {
+                                            Guitar g = new Guitar();
+                                            g.Init();
+                                            MusicalInstrument foundInstrument = instrumentsTable.Find(g);
+                                            Console.WriteLine($"Найденный инструмент: {foundInstrument}");
+
+                                        }
+                                        break;
+                                    case 4:
+                                        {
+                                            MusicalInstrument m = new MusicalInstrument();
+                                            m.Init();
+                                            MusicalInstrument foundInstrument = instrumentsTable.Find(m);
+                                            Console.WriteLine($"Найденный инструмент: {foundInstrument}");
+                                        }
+                                        break;
+                                }
                             }
+
+
                             catch (KeyNotFoundException)
                             {
                                 Console.WriteLine("Инструмент не найден.");
@@ -335,9 +471,51 @@ namespace laba12
                             }
                             // Удаление элемента из таблицы
                             Console.WriteLine("Удаление элемента по ключу:");
-                            int key = Functions.Input();
-                            bool removed = instrumentsTable.Remove(key);
-                            Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                            
+                            
+                            Console.WriteLine("1 - Электрогитара");
+                            Console.WriteLine("2 - Пианино");
+                            Console.WriteLine("3 - Гитара");
+                            Console.WriteLine("4 - Музыкальный инструмент");
+
+                            int z = InputInt(0, 4);
+                            switch (z)
+                            {
+                                case 1:
+                                    {
+                                        ElectricGuitar e = new ElectricGuitar();
+                                        e.Init();
+                                        bool removed = instrumentsTable.Remove(e);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        Piano p = new Piano();
+                                        p.Init();
+                                        bool removed = instrumentsTable.Remove(p);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        Guitar g = new Guitar();
+                                        g.Init();
+                                        bool removed = instrumentsTable.Remove(g);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        MusicalInstrument m = new MusicalInstrument();
+                                        m.Init();
+                                        bool removed = instrumentsTable.Remove(m);
+                                        Console.WriteLine($"Элемент удален из таблицы: {removed}");
+                                    }
+                                    break;
+                            }
+                           
                         }
                         break;
 
@@ -366,7 +544,7 @@ namespace laba12
                                 MusicalInstrument newInstrument = GenerateRandomInstrument();
                                 Console.WriteLine("Добавляемый элемент");
                                 newInstrument.Show();
-                                instrumentsTable.Add(newInstrument.GetHashCode(), newInstrument);
+                                instrumentsTable.Add(newInstrument, newInstrument);
                                 if (count == instrumentsTable.GetCount())
                                 {
                                     Console.WriteLine("Элемент не добавлен");
@@ -396,11 +574,11 @@ namespace laba12
                             try
                             {
 
-                                ElectricGuitar newInstrument = new ElectricGuitar();
+                                MusicalInstrument newInstrument = new MusicalInstrument();
                                 newInstrument.Init();
                                 Console.WriteLine("Добавляемый элемент");
                                 newInstrument.Show();
-                                instrumentsTable.Add(newInstrument.GetHashCode(), newInstrument);
+                                instrumentsTable.Add(newInstrument, newInstrument);
                                 if (count == instrumentsTable.GetCount())
                                 {
                                     Console.WriteLine("Элемент не добавлен");
@@ -411,6 +589,12 @@ namespace laba12
                             {
                                 Console.WriteLine($"Ошибка: {ex.Message}");
                             }
+                        }
+                        break;
+                    case 8:
+                        {
+                            instrumentsTable.Clear();
+                            Console.WriteLine("Таблица была очищена");
                         }
                         break;
                 }

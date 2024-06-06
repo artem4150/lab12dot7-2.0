@@ -14,16 +14,16 @@ namespace лаба10
         protected int NumberOfStrings1;
         public int NumberOfStrings
         {
-            get => NumberOfStrings1;
+            get { return NumberOfStrings1; }
+                
             set
             {
 
                 if (value < 0)
                 {
-                    Console.WriteLine("");
-                    NumberOfStrings1 = 0;
+                    throw new Exception("число меньше 1");
                 }
-                else NumberOfStrings1 = value;
+                NumberOfStrings1 = value;
             }
         }
         public Guitar() : base()
